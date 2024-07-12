@@ -19,7 +19,7 @@ class ItemController extends Controller
     public function index()
     {
         $items = $this->itemService->getAllItems();
-        return view('items.index', compact('items'));
+        return view('items.index', compact('items'))->with('i', (request()->input('page', 1) - 1) * 5);
     }
 
     public function toggleActive(Request $request, Item $item)

@@ -22,11 +22,12 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($items as $item)
+        @foreach($items as $key => $item)
             <tr>
-                <td>{{ $item->id }}</td>
+                <td>{{ $items->firstItem() + $key }}</td>
                 <td>{{ $item->name }}</td>
-                <td><img src="{{ asset($item->file) }}" style="height: 50px;width:100px;"></td>
+                <td><img src="{{ asset($item->file) }}" alt="{{ $item->name }}" class="img-thumbnail" style="height: 50px;width:100px; cursor: pointer;" data-toggle="modal" data-target="#imageModal" data-image="{{ asset($item->file) }}"></td>
+
                 <td>
                     <input type="checkbox" class="is_active_switch" data-id="{{ $item->id }}" {{ $item->is_active ? 'checked' : '' }}>
                 </td>
@@ -43,11 +44,34 @@
         @endforeach
     </tbody>
 </table>
+{!! $items->links() !!}
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" class="img-fluid" alt="Image">
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('customCss')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css">
+<style>
+    .modal-dialog {
+        max-width: 70% !important;
+        margin: 1.75rem auto;
+    }
+</style>
 @endsection
 
 @section('customScript')
@@ -57,6 +81,7 @@
     $(document).ready(function() {
         $('.is_active_switch').bootstrapSwitch();
 
+        // Handle switch click using Ajax call
         $('.is_active_switch').on('switchChange.bootstrapSwitch', function(event, state) {
             var itemId = $(this).data('id');
             var token = $('meta[name="csrf-token"]').attr('content');
@@ -73,6 +98,12 @@
                     console.log('Error:', xhr);
                 }
             });
+        });
+
+        // Handle image click to show in modal
+        $('img[data-toggle="modal"]').on('click', function() {
+            var imageUrl = $(this).data('image');
+            $('#modalImage').attr('src', imageUrl);
         });
     });
 </script>
