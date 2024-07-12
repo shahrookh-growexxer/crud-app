@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\Item;
+use Illuminate\Support\Facades\File;
 
 class ItemService
 {
@@ -18,8 +19,36 @@ class ItemService
         return Item::create($data);
     }
 
-    public function update(Item $item, array $data)
+    public function updateItem(Item $item, array $data)
     {
-        return $item->update($data);
+        if (!isset($data['is_active'])) {
+            $data['is_active'] = 0;
+        } else {
+            $data['is_active'] = 1;
+        }
+
+        if (isset($data['file'])) {
+            // Delete the old file if it exists
+            if ($item->file) {
+                File::delete($item->file);
+            }
+
+            // Store the new file
+            $extension = pathinfo($item->file, PATHINFO_EXTENSION);
+            $imageName = time().'.'.$extension;
+            $data['file']->move(public_path('/files'), $imageName);
+            $data['file'] = 'files/'. $imageName;
+        }
+
+        // Update the item with new data
+        $item->update($data);
+    }
+
+    public function deleteItem($id)
+    {
+        $item = Item::findOrFail($id);
+        $item->delete();
+
+        return $item;
     }
 }
