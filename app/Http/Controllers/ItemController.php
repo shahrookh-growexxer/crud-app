@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ItemRequest;
+use App\Models\Item;
 use App\Services\ItemService;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,20 @@ class ItemController extends Controller
         $this->itemService = $itemService;
     }
 
+    public function index()
+    {
+        $items = $this->itemService->getAllItems();
+        return view('items.index', compact('items'));
+    }
+
+    public function toggleActive(Request $request, Item $item)
+    {
+        $item->is_active = !$item->is_active;
+        $item->save();
+
+        return response()->json(['status' => 'success', 'is_active' => $item->is_active]);
+    }
+
     public function create()
     {
         return view('items.create');
@@ -25,7 +40,9 @@ class ItemController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('file')) {
-            $data['file'] = $request->file('file')->store('files');
+            $imageName = time().'.'.$request->file->getClientOriginalExtension();
+            $request->file->move(public_path('/files'), $imageName);
+            $data['file'] = 'files/'. $imageName;
         }
         
         $this->itemService->create($data);
