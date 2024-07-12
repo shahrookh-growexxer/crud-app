@@ -8,7 +8,7 @@ class ItemService
 {
     public function getAllItems()
     {
-        return Item::all();
+        return Item::latest()->paginate(5);
     }
 
     public function create(array $data)
