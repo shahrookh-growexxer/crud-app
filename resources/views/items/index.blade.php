@@ -26,11 +26,19 @@
             <tr>
                 <td>{{ $item->id }}</td>
                 <td>{{ $item->name }}</td>
-                <td><img src="{{ asset($item->file) }}" style="width: 10%;"></td>
+                <td><img src="{{ asset($item->file) }}" style="height: 50px;width:100px;"></td>
                 <td>
                     <input type="checkbox" class="is_active_switch" data-id="{{ $item->id }}" {{ $item->is_active ? 'checked' : '' }}>
                 </td>
                 <td>{{ $item->description }}</td>
+                <td>
+                    <a href="{{ route('items.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{{ route('items.destroy', $item->id) }}" method="POST" style="display: inline-block;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
             </tr>
         @endforeach
     </tbody>

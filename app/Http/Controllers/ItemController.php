@@ -49,4 +49,22 @@ class ItemController extends Controller
 
         return redirect()->route('items.index');
     }
+
+    public function edit(Item $item)
+    {
+        return view('items.edit', compact('item'));
+    }
+
+    public function update(Request $request, Item $item)
+    {
+        $this->itemService->updateItem($item, $request->all());
+
+        return redirect()->route('items.index')->with('success', 'Item updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $this->itemService->deleteItem($id);
+        return redirect()->route('items.index')->with('success', 'Item deleted successfully.');
+    }
 }
